@@ -6,7 +6,7 @@ from util.excelOperate import write_excel_xls
 
 if __name__ == '__main__':
 
-    eventFile = "data/2022.11.7/xm-1_001 Events.txt"
+    eventFile = "data/2022.11.3/ytl-4_001 Events.txt"
     # sampleFile1 = "data/2022.10.29/hcy1-1_Samples.txt"
     # sampleFile2 = "data/zjb1_Samples.txt"
     # sampleFile3 = "data/hjn500-2_Samples.txt"

@@ -1,6 +1,6 @@
 import os.path
 
-from util.gazeplotter import draw_raw, draw_rect, draw_heatmap
+from util.gazeplotter import draw_raw, draw_rect, draw_heatmap, draw_aoi
 from util.disperision import Dispersion
 from util.generateAoi import genterate_aoi, genterate_aoi_dul, genterate_aoi_dul_feature
 from detection2 import load_image_into_numpy_array, process_image
@@ -56,6 +56,7 @@ def draw_rawpoint1(data):
             F = []
             tmp = mark
 
+
 def drawHeatMap(raw, output_name, background_image):
     display_width = 1280
     display_height = 1024
@@ -72,14 +73,13 @@ def drawHeatMap(raw, output_name, background_image):
                  imagefile=background_image, gaussianwh=ngaussian, gaussiansd=None)
 
 
-
 def draw_fixation(data):
     tmp = 0
     F = []
     X = []
     Y = []
     for i in range(data.shape[0]):
-        ## 获取mark
+        # 获取mark
         mark = data.loc[i, 'Mark']
         if tmp == mark:
             x = data.loc[i, 'Location X']
@@ -90,15 +90,21 @@ def draw_fixation(data):
             Y.append(y)
             F.append([x, y, dur])
         else:
-            ## 直到下一个mark
+            # 直到下一个mark
             # 提取注视点
             F = np.array(F)
             print(F)
-            drawHeatMap(raw=F, output_name=f"image/xm_temp/{str(tmp)}", background_image=backgroundImg)
+            # drawHeatMap(raw=F, output_name=f"image/xm_temp/{str(tmp)}", background_image=backgroundImg)
             # print("F:", F)
             # M1, M2 = genterate_aoi(a[['x','y']].values,40)
-            # feature = genterate_aoi(F, 90)
-            # print(feature)
+
+            # 根据注视点生成注视区域
+
+            feature = genterate_aoi(F, 50)
+            print(feature)
+
+            draw_aoi(point1=F, point2=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
+                     savefilename=f"image/aoi&target&time/ytl_target4/{str(tmp)}")
 
             # 检测行人，生成new_boxes.
             # image = Image.open(backgroundImg)
@@ -107,7 +113,7 @@ def draw_fixation(data):
 
             # draw_raw(x=X, y=Y, dispsize=(1280, 1024), imagefile=backgroundImg,
             #          savefilename="image/hcy_temp/" + str(tmp))
-            # # draw_raw(M1, M2, dispsize=(1280, 1024), imagefile=backgroundImg,
+            # draw_raw(M1, M2, dispsize=(1280, 1024), imagefile=backgroundImg,
             #          savefilename="img8/" + str(tmp))
 
             # imagefile = "img4/" + backgroundImg[19:-4] + ".jpg"
@@ -118,11 +124,11 @@ def draw_fixation(data):
             # draw_circle(point=feature, dispsize=(1280, 1024), imagefile="G:/eyetracker/"+backgroundImg,
             #             savefilename="zjb11_temp/" + backgroundImg[18:-4] + ".jpg")
             # if len(feature) != 0:
-            # #     draw_adjust_rect(point=feature, boxes=new_boxes, dispsize=(1280, 1024),
-            # #                      imagefile="image/hcy_temp/" + backgroundImg[19:-4] + ".jpg",
-            # #                      savefilename="image/hcy_adj_judge/" + backgroundImg[19:-4] + ".jpg")
-            #     draw_rect(point=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
-            #               savefilename="image/hcy_temp/" + backgroundImg[21:])
+            #     draw_adjust_rect(point=feature, boxes=new_boxes, dispsize=(1280, 1024),
+            #                      imagefile="image/hcy_temp/" + backgroundImg[19:-4] + ".jpg",
+            #                      savefilename="image/hcy_adj_judge/" + backgroundImg[19:-4] + ".jpg")
+            # draw_rect(point=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
+            #           savefilename="image/hcy_temp/" + backgroundImg[21:])
             # draw
             F = []
             X = []
@@ -165,7 +171,7 @@ def draw_multi_fiaxtion(data):
                 F3.append([x, y, dur])
 
         else:
-            ## 直到下一个image
+            # 直到下一个image
             # 提取注视点
             F1 = np.array(F1)
             F2 = np.array(F2)

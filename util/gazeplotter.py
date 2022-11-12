@@ -472,9 +472,43 @@ def draw_adjust_rect(point, boxes, dispsize, imagefile=None, savefilename=None):
     return fig
 
 
+def draw_aoi(point1, point2, dispsize, imagefile=None, savefilename=None):
+    """
+    :param point1: raw fixation:[x,y,dur]
+    :param point2: aio center:[x, y, total_duration, max_duration, mean_duration, std_duration, count_fixation]
+    :param imagefile: background image
+    :param savefilename:
+    :return: fig
+    """
+    width = 50
+    height = 50
+    fig, ax = draw_display(dispsize, imagefile=imagefile)
+
+    # 画出raw fixation
+    for i in range(len(point1)):
+        ax.plot(point1[i][0], point1[i][1], 'o', color=COLS['aluminium'][6], markeredgecolor=COLS['aluminium'][5],
+                markersize=int(point1[i][2]/12))
+        ax.text(point1[i][0], point1[i][1], str(i))
+
+    # 画出 aio center
+    for i in range(len(point2)):
+        color = "purple"
+        if i == len(point2)-1:
+            color = "red"
+        ax.add_patch(
+            patches.Rectangle((point2[i][0] - width / 2, point2[i][1] - height / 2), width, height, fill=False,
+                              color=color, linewidth=2))
+
+    ax.invert_yaxis()
+
+    if savefilename != None:
+        fig.savefig(savefilename)
+
+    return fig
+
+
 def draw_rect(point, dispsize, imagefile=None, savefilename=None):
     """
-
     :param point: list :[[x,y],...]此刻的point是一个feature
     :param point1: list :[[x,y,dur],...]
     :param dispsize: (width,height)
