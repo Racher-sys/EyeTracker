@@ -475,7 +475,7 @@ def draw_adjust_rect(point, boxes, dispsize, imagefile=None, savefilename=None):
 def draw_aoi(point1, point2, dispsize, imagefile=None, savefilename=None):
     """
     :param point1: raw fixation:[x,y,dur]
-    :param point2: aio center:[x, y, total_duration, max_duration, mean_duration, std_duration, count_fixation]
+    :param point2: aio center:[x, y, last, count_fixation]
     :param imagefile: background image
     :param savefilename:
     :return: fig
@@ -490,11 +490,19 @@ def draw_aoi(point1, point2, dispsize, imagefile=None, savefilename=None):
                 markersize=int(point1[i][2]/12))
         ax.text(point1[i][0], point1[i][1], str(i))
 
-    # 画出 aio center
+    max_count = np.max(point2, axis=0)[3]
+    flag = 0
+    if max_count > 1:
+        flag = 1
+    # 画出 aio center 两种选择,一种是画出最大的count的区域,一种是画出最后一个点的区域,但是优先画出最大数量的区域
     for i in range(len(point2)):
         color = "purple"
-        if i == len(point2)-1:
+        if point2[i][2] == 1 and flag == 0:
             color = "red"
+        if point2[i][3] == max_count and flag == 1:
+            color = "red"
+        # if i == len(point2)-1:
+        #     color = "red"
         ax.add_patch(
             patches.Rectangle((point2[i][0] - width / 2, point2[i][1] - height / 2), width, height, fill=False,
                               color=color, linewidth=2))

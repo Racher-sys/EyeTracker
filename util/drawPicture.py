@@ -104,7 +104,7 @@ def draw_fixation(data):
             print(feature)
 
             draw_aoi(point1=F, point2=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
-                     savefilename=f"image/aoi&target&time/ytl_target4/{str(tmp)}")
+                     savefilename=f"image/aoi&target&count/zjb_target2/{str(tmp)}")
 
             # 检测行人，生成new_boxes.
             # image = Image.open(backgroundImg)
