@@ -6,14 +6,14 @@ from util.excelOperate import write_excel_xls
 
 if __name__ == '__main__':
 
-    eventFile = "data/zjb2_Events.txt"
+    # eventFile = "data/zjb2_Events.txt"
     # sampleFile1 = "data/2022.10.29/hcy1-1_Samples.txt"
-    # sampleFile2 = "data/zjb1_Samples.txt"
+    sampleFile = "data/zjb2_Samples.txt"
     # sampleFile3 = "data/hjn500-2_Samples.txt"
 
-    df1 = read_event(eventFile)
+    # df1 = read_event(eventFile)
     # df1.to_csv("csv_file/hcy_event1.csv")
-    # df2 = sample_dis(sampleFile2)
+    df2 = sample_dis(sampleFile)
     # df3 = sample_dis(sampleFile3)
     # df4 = sample_dis_dul([sampleFile1, sampleFile2, sampleFile3])
     # #
@@ -32,4 +32,4 @@ if __name__ == '__main__':
     #
     # draw_multi_fiaxtion(df4)
 
-    draw_fixation(df1)
+    draw_fixation(df2)

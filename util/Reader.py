@@ -145,15 +145,25 @@ def read_sample2(filename):
                 flag = 0
 
         if 'SMP' in line[1] and flag == 1:
-            if float(line[21]) != 0 and float(line[22]) != 0:
-                data['GazePoint X'] = float(line[21])
-                data['GazePoint Y'] = float(line[22])
+            if float(line[13]) != 0 and float(line[14]) != 0:
+                data['GazePoint X'] = float(line[13])
+                data['GazePoint Y'] = float(line[14])
                 data['Pupil L'] = float(line[9])
                 data['Pupil R'] = float(line[12])
                 data['Image Path'] = msg
                 data['count'] = int(count)
                 df.loc[k] = data
                 k += 1
+
+            # if float(line[21]) != 0 and float(line[22]) != 0:
+            #     data['GazePoint X'] = float(line[21])
+            #     data['GazePoint Y'] = float(line[22])
+            #     data['Pupil L'] = float(line[9])
+            #     data['Pupil R'] = float(line[12])
+            #     data['Image Path'] = msg
+            #     data['count'] = int(count)
+            #     df.loc[k] = data
+            #     k += 1
     return df
 
 
@@ -209,7 +219,7 @@ def sample_dis(file):
     df_count = 0
 
     for i in range(data.shape[0]):
-        ## 获取mark
+        # 获取mark
         mark = data.loc[i, 'count']
         if tmp == mark:
             x = data.loc[i, 'GazePoint X']

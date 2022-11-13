@@ -104,12 +104,96 @@ def draw_fixation(data):
             print(feature)
 
             draw_aoi(point1=F, point2=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
-                     savefilename=f"image/aoi&target&count/zjb_target2/{str(tmp)}")
+                     savefilename=f"image/aoi&target&seq/sample/zjb_target2/{str(tmp)}")
 
             # 检测行人，生成new_boxes.
             # image = Image.open(backgroundImg)
             # image_np = load_image_into_numpy_array(image)
             # image_process, new_boxes = process_image(image_np)
+
+            # draw_raw(x=X, y=Y, dispsize=(1280, 1024), imagefile=backgroundImg,
+            #          savefilename="image/hcy_temp/" + str(tmp))
+            # draw_raw(M1, M2, dispsize=(1280, 1024), imagefile=backgroundImg,
+            #          savefilename="img8/" + str(tmp))
+
+            # imagefile = "img4/" + backgroundImg[19:-4] + ".jpg"
+            # if os.path.exists(imagefile):
+            #     draw_circle(point=F, dispsize=(1280, 1024), imagefile=imagefile,
+            #                 savefilename="img5/" + backgroundImg[19:-4] + ".jpg")
+            # else:
+            # draw_circle(point=feature, dispsize=(1280, 1024), imagefile="G:/eyetracker/"+backgroundImg,
+            #             savefilename="zjb11_temp/" + backgroundImg[18:-4] + ".jpg")
+            # if len(feature) != 0:
+            #     draw_adjust_rect(point=feature, boxes=new_boxes, dispsize=(1280, 1024),
+            #                      imagefile="image/hcy_temp/" + backgroundImg[19:-4] + ".jpg",
+            #                      savefilename="image/hcy_adj_judge/" + backgroundImg[19:-4] + ".jpg")
+            # draw_rect(point=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
+            #           savefilename="image/hcy_temp/" + backgroundImg[21:])
+            # draw
+            F = []
+            X = []
+            Y = []
+            tmp = mark
+
+            # 把tmp!=mark的存储下来
+            x = data.loc[i, 'Location X']
+            y = data.loc[i, 'Location Y']
+            dur = data.loc[i, 'Duration']
+            backgroundImg = data.loc[i, 'Image Path']
+            X.append(x)
+            Y.append(y)
+            F.append([x, y, dur])
+
+
+def judge(aoi, new_boxes):
+    """
+    :param aoi: aoi的坐标是感兴趣区域中心点的坐标[[x,y,last,]]
+    :param new_boxes: new_boxes的格式是[[xmin,ymin,width,height]]
+    :return: 返回一个选择后的最终的boxes,yin
+    """
+    final_box = np.zeros(4)
+
+
+    return
+    pass
+
+
+def draw_fixation1(data):
+    tmp = 0
+    F = []
+    X = []
+    Y = []
+    for i in range(data.shape[0]):
+        # 获取mark
+        mark = data.loc[i, 'Mark']
+        if tmp == mark:
+            x = data.loc[i, 'Location X']
+            y = data.loc[i, 'Location Y']
+            dur = data.loc[i, 'Duration']
+            backgroundImg = data.loc[i, 'Image Path']
+            X.append(x)
+            Y.append(y)
+            F.append([x, y, dur])
+        else:
+            # 直到下一个mark
+            # 提取注视点
+            F = np.array(F)
+            print(F)
+
+            # 根据注视点生成注视区域
+
+            feature = genterate_aoi(F, 50)
+            print(feature)
+
+            # draw_aoi(point1=F, point2=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
+            #          savefilename=f"image/aoi&target&count/zjb_target2/{str(tmp)}")
+
+            # 检测行人，生成new_boxes.
+            image = Image.open(backgroundImg)
+            image_np = load_image_into_numpy_array(image)
+            image_process, new_boxes = process_image(image_np)
+
+            # 对于每一个new_box与aoi结合判断
 
             # draw_raw(x=X, y=Y, dispsize=(1280, 1024), imagefile=backgroundImg,
             #          savefilename="image/hcy_temp/" + str(tmp))

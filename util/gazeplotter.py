@@ -490,17 +490,17 @@ def draw_aoi(point1, point2, dispsize, imagefile=None, savefilename=None):
                 markersize=int(point1[i][2]/12))
         ax.text(point1[i][0], point1[i][1], str(i))
 
-    max_count = np.max(point2, axis=0)[3]
-    flag = 0
-    if max_count > 1:
-        flag = 1
+    # max_count = np.max(point2, axis=0)[3]
+    # flag = 0
+    # if max_count > 1:
+    #     flag = 1
     # 画出 aio center 两种选择,一种是画出最大的count的区域,一种是画出最后一个点的区域,但是优先画出最大数量的区域
     for i in range(len(point2)):
         color = "purple"
-        if point2[i][2] == 1 and flag == 0:
+        if point2[i][2] == 1:
             color = "red"
-        if point2[i][3] == max_count and flag == 1:
-            color = "red"
+        # if point2[i][3] == max_count and flag == 1:
+        #     color = "red"
         # if i == len(point2)-1:
         #     color = "red"
         ax.add_patch(
