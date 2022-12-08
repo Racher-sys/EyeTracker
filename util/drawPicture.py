@@ -1,6 +1,6 @@
 import os.path
 
-from util.gazeplotter import draw_raw, draw_rect, draw_heatmap, draw_aoi
+from util.gazeplotter import draw_raw, draw_rect, draw_heatmap, draw_aoi, draw_aoi_pedestrain, draw_target
 from util.disperision import Dispersion
 from util.generateAoi import genterate_aoi, genterate_aoi_dul, genterate_aoi_dul_feature
 from detection2 import load_image_into_numpy_array, process_image
@@ -21,10 +21,43 @@ def draw_rawpoint(data):
             y.append(data.loc[i, 'GazePoint Y'])
             backgroundImg = data.loc[i, 'Image Path']
         else:
-            ## 直到下一个mark
-            # print("x:",x)
-            # print("y:",y)
-            draw_raw(x=x, y=y, dispsize=(1280, 1024), imagefile=backgroundImg, savefilename="img6/" + str(tmp))
+            draw_raw(x=x, y=y, dispsize=(1280, 1024), imagefile=backgroundImg,
+                     savefilename="image/raw/hcy_raw2/" + str(tmp))
+            x = []
+            y = []
+            tmp = mark
+
+
+# 画出没有黑边的方法
+def draw_rawpoint_whole_img(data):
+    ## 读取某一行的数据
+    tmp = 0
+    x = []
+    y = []
+    display_width = 1280
+    display_height = 1024
+    # 图片的长宽
+    width_pic = 768
+    height_pic = 614
+
+    dispsize = (width_pic, height_pic)
+    # 图像与图片之差
+    width_adj = (display_width - width_pic) / 2
+    height_adj = (display_height - height_pic) / 2
+
+    for i in range(data.shape[0]):
+        ## 获取mark
+        mark = data.loc[i, 'count']
+        if tmp == mark:
+            x_temp = data.loc[i, 'GazePoint X'] - width_adj
+            y_temp = data.loc[i, 'GazePoint Y'] - height_adj
+            if x_temp >= 0 and x_temp <= width_pic and y_temp >= 0 and y_temp <= height_pic:
+                x.append(x_temp)
+                y.append(y_temp)
+                backgroundImg = data.loc[i, 'Image Path']
+        else:
+            draw_raw(x=x, y=y, dispsize=dispsize, imagefile=backgroundImg,
+                     savefilename="image/raw1/hjn_1000_raw/" + str(tmp))
             x = []
             y = []
             tmp = mark
@@ -104,7 +137,7 @@ def draw_fixation(data):
             print(feature)
 
             draw_aoi(point1=F, point2=feature, dispsize=(1280, 1024), imagefile=backgroundImg,
-                     savefilename=f"image/aoi&target&seq/sample/zjb_target2/{str(tmp)}")
+                     savefilename=f"image/aoi&target&seq/20221126/zjb6/{str(tmp)}")
 
             # 检测行人，生成new_boxes.
             # image = Image.open(backgroundImg)
@@ -147,15 +180,59 @@ def draw_fixation(data):
 
 def judge(aoi, new_boxes):
     """
-    :param aoi: aoi的坐标是感兴趣区域中心点的坐标[[x,y,last,]]
+    :param aoi: aoi的坐标是感兴趣区域中心点的坐标[[x,y,last,count_fixation]]
     :param new_boxes: new_boxes的格式是[[xmin,ymin,width,height]]
-    :return: 返回一个选择后的最终的boxes,yin
+    :return: 返回一个选择后的最终的boxes,因为在draw.rect的时候用的就是box的
+
+    method :把感兴趣区域进行归类，归到某个行人身上。
     """
+    # 图像的长宽
+    width_fig = 1280
+    height_fig = 1024
+    # 图片的长宽
+    width_pic = 768
+    height_pic = 614
+    # 图像与图片之差
+    width_adj = (width_fig - width_pic) / 2
+    height_adj = (height_fig - height_pic) / 2
+
     final_box = np.zeros(4)
+    # sort有两行，第一行是每个行人框的感兴趣区域的个数，第二行是上一步中最有可能的目标感兴趣框所在的行人框上的标定。
+    sort = np.zeros((2, len(new_boxes)))
+    for i in range(len(aoi)):
+        min = 1000
+        record = 0
+        for j in range(len(new_boxes)):
+            # w = (xmin+width/2-x)
+            w = abs(new_boxes[j][0] + new_boxes[j][2] / 2 + width_adj - aoi[i][0])
+            # h = (ymin+height/2-y)
+            h = abs(new_boxes[j][1] + new_boxes[j][3] / 2 + height_adj - aoi[i][1])
+            if min > w:
+                min = w
+                record = j
+            if min > h:
+                min = h
+                record = j
+        sort[0][record] += 1
+        sort[1][record] = aoi[i][2]
 
+    print(sort)
+    # 找出感兴趣区域个数最大的行人框，以及目标感兴趣所在的行人框。
 
-    return
-    pass
+    max_number = np.max(sort, axis=1)[0]
+    # 优先选择max count 的行人框 ，如果有多个行人框中的max count是一样的，那么就选择有目标框的那个行人框。
+    for i in range(len(new_boxes)):
+        if sort[1][i] == 1:
+            final_box = new_boxes[i]
+
+    print(np.array(final_box))
+    final_box = np.array(final_box)
+    final_box1 = final_box
+    # 调整宽度
+    final_box[0] += width_adj
+    final_box[1] += height_adj
+
+    return final_box, final_box1
 
 
 def draw_fixation1(data):
@@ -192,6 +269,13 @@ def draw_fixation1(data):
             image = Image.open(backgroundImg)
             image_np = load_image_into_numpy_array(image)
             image_process, new_boxes = process_image(image_np)
+
+            box, box1 = judge(feature, new_boxes)
+
+            draw_target(box=box1, imagefile=backgroundImg, savefilename=f"image/crop/hcy1/{str(tmp)}.png")
+
+            draw_aoi_pedestrain(point1=F, point2=feature, box=box, dispsize=(1280, 1024), imagefile=backgroundImg,
+                                savefilename=f"image/aoi&target&ped/20221120/hcy1/{str(tmp)}")
 
             # 对于每一个new_box与aoi结合判断
 
